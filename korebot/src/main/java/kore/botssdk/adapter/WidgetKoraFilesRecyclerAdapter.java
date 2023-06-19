@@ -21,7 +21,6 @@ import kore.botssdk.listener.RecyclerViewDataAccessor;
 import kore.botssdk.listener.VerticalListViewActionHelper;
 import kore.botssdk.models.WFileLookUpModel;
 import kore.botssdk.utils.StringUtils;
-import kore.botssdk.utils.Utility;
 import kore.botssdk.utils.WidgetViewMoreEnum;
 import kore.botssdk.view.viewHolder.EmptyWidgetViewHolder;
 import kore.botssdk.view.viewUtils.FileUtils;
@@ -32,14 +31,14 @@ import kore.botssdk.view.viewUtils.FileUtils;
 
 public class WidgetKoraFilesRecyclerAdapter extends RecyclerView.Adapter implements RecyclerViewDataAccessor {
 
-    private Context context;
+    private final Context context;
     private ArrayList<WFileLookUpModel> kaFileLookupModels;
     private boolean isExpanded;
     private VerticalListViewActionHelper verticalListViewActionHelper;
-    private boolean from_widget = false;
-    private int NO_DATA = 0;
-    private int DATA_FOUND = 1;
-    private int MESSAGE=2;
+    private final boolean from_widget = false;
+    private final int NO_DATA = 0;
+    private final int DATA_FOUND = 1;
+    private final int MESSAGE=2;
     Drawable errorIcon;
     public int getPreviewlength() {
         return previewlength;
@@ -109,7 +108,7 @@ public class WidgetKoraFilesRecyclerAdapter extends RecyclerView.Adapter impleme
             holder.koraFileLookupViewBinding.rootLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    WFileLookUpModel kaFileLookupModel = kaFileLookupModels.get(position);
+                    WFileLookUpModel kaFileLookupModel = kaFileLookupModels.get(holder.getBindingAdapterPosition());
                   /*  if (kaFileLookupModel.getButtons() != null && kaFileLookupModel.getButtons().size() > 0) {
                         verticalListViewActionHelper.driveItemClicked(kaFileLookupModel.getButtons().get(0));
                     }else */if(kaFileLookupModel.getDefault_action().getUrl() != null){

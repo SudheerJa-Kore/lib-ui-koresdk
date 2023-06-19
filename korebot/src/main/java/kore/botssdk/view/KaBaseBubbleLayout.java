@@ -1,5 +1,7 @@
 package kore.botssdk.view;
 
+import static kore.botssdk.net.SDKConfiguration.BubbleColors.BubbleUI;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -32,8 +34,6 @@ import kore.botssdk.utils.DateUtils;
 import kore.botssdk.utils.ViewProvider;
 import kore.botssdk.view.viewUtils.BubbleViewUtil;
 import kore.botssdk.view.viewUtils.DimensionUtil;
-
-import static kore.botssdk.net.SDKConfiguration.BubbleColors.BubbleUI;
 
 
 /**
@@ -138,7 +138,7 @@ public abstract class KaBaseBubbleLayout extends ViewGroup {
     protected ListWidgetView listWidgetView;
     protected BotListWidgetTemplateView botListWidgetTemplateView;
     protected BotDropDownTemplateView botDropDownTemplateView;
-//    protected ImageTemplateView imageTemplateView;
+    protected ImageTemplateView imageTemplateView;
     protected BankingFeedbackTemplateView bankingFeedbackTemplateView;
     protected BotContactTemplateView botContactTemplateView;
     protected BotCustomTableView botCustomTableView;
@@ -421,9 +421,9 @@ public abstract class KaBaseBubbleLayout extends ViewGroup {
         botDropDownTemplateView.setComposeFooterInterface(composeFooterInterface);
         addView(botDropDownTemplateView);
 
-//        imageTemplateView = ViewProvider.getImageTemplateView(context);
-//        imageTemplateView.setComposeFooterInterface(composeFooterInterface);
-//        addView(imageTemplateView);
+        imageTemplateView = ViewProvider.getImageTemplateView(context);
+        imageTemplateView.setComposeFooterInterface(composeFooterInterface);
+        addView(imageTemplateView);
 
         bankingFeedbackTemplateView = ViewProvider.getBankingFeedbackTemplateView(context);
         bankingFeedbackTemplateView.setComposeFooterInterface(composeFooterInterface);
@@ -541,9 +541,9 @@ public abstract class KaBaseBubbleLayout extends ViewGroup {
             botDropDownTemplateView.setComposeFooterInterface(composeFooterInterface);
         }
 
-//        if(imageTemplateView != null) {
-//            imageTemplateView.setComposeFooterInterface(composeFooterInterface);
-//        }
+        if(imageTemplateView != null) {
+            imageTemplateView.setComposeFooterInterface(composeFooterInterface);
+        }
 
         if(tableView != null)
             tableView.setComposeFooterInterface(composeFooterInterface);
@@ -612,9 +612,9 @@ public abstract class KaBaseBubbleLayout extends ViewGroup {
             botDropDownTemplateView.setInvokeGenericWebViewInterface(invokeGenericWebViewInterface);
         }
 
-//        if(imageTemplateView != null) {
-//            imageTemplateView.setInvokeGenericWebViewInterface(invokeGenericWebViewInterface);
-//        }
+        if(imageTemplateView != null) {
+            imageTemplateView.setInvokeGenericWebViewInterface(invokeGenericWebViewInterface);
+        }
 
         if(bankingFeedbackTemplateView != null) {
             bankingFeedbackTemplateView.setInvokeGenericWebViewInterface(invokeGenericWebViewInterface);

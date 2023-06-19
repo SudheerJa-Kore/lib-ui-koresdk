@@ -12,9 +12,7 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.ExpandableListView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.DrawableRes;
@@ -136,24 +134,8 @@ public class TableExpandView<T> extends LinearLayout {
      */
     public void setHeaderVisible(boolean visible, int animationDuration) {
         if (visible && !isHeaderVisible()) {
-            if (animationDuration > 0) {
-                final Animator moveInAnimator = ObjectAnimator.ofPropertyValuesHolder((Object) null, PropertyValuesHolder.ofFloat("y", 0));
-                moveInAnimator.setDuration(animationDuration);
-                layoutTransition.setAnimator(LayoutTransition.APPEARING, moveInAnimator);
-                setLayoutTransition(layoutTransition);
-            } else {
-                setLayoutTransition(null);
-            }
             addView(tableHeaderView, 0);
         } else if (!visible && isHeaderVisible()) {
-            if (animationDuration > 0) {
-                final Animator moveOutAnimator = ObjectAnimator.ofPropertyValuesHolder((Object) null, PropertyValuesHolder.ofFloat("y", -tableHeaderView.getHeight()));
-                moveOutAnimator.setDuration(animationDuration);
-                layoutTransition.setAnimator(LayoutTransition.DISAPPEARING, moveOutAnimator);
-                setLayoutTransition(layoutTransition);
-            } else {
-                setLayoutTransition(null);
-            }
             removeView(tableHeaderView);
         }
     }

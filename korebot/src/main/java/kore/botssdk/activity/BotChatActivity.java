@@ -1,5 +1,9 @@
 package kore.botssdk.activity;
 
+import static android.view.View.VISIBLE;
+import static kore.botssdk.activity.KaCaptureImageActivity.rotateIfNecessary;
+import static kore.botssdk.utils.BundleConstants.CAPTURE_IMAGE_CHOOSE_FILES_BUNDLED_PREMISSION_REQUEST;
+
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
@@ -10,10 +14,12 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.Process;
+import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -24,7 +30,6 @@ import android.widget.Toast;
 
 import androidx.fragment.app.FragmentTransaction;
 
-import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
@@ -38,13 +43,13 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Random;
 
 import kore.botssdk.R;
 import kore.botssdk.bot.BotClient;
-import kore.botssdk.drawables.ThemeColors;
 import kore.botssdk.event.KoreEventCenter;
 import kore.botssdk.events.SocketDataTransferModel;
+import kore.botssdk.fileupload.core.KoreWorker;
+import kore.botssdk.fileupload.core.UploadBulkFile;
 import kore.botssdk.fragment.BotContentFragment;
 import kore.botssdk.fragment.ComposeFooterFragment;
 import kore.botssdk.fragment.QuickReplyFragment;
@@ -99,18 +104,13 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-import static android.view.View.VISIBLE;
-import static kore.botssdk.activity.KaCaptureImageActivity.rotateIfNecessary;
-import static kore.botssdk.utils.BundleConstants.CAPTURE_IMAGE_CHOOSE_FILES_BUNDLED_PREMISSION_REQUEST;
-
 /**
  * Created by Pradeep Mahato on 31-May-16.
  * Copyright (c) 2014 Kore Inc. All rights reserved.
  */
 public class BotChatActivity extends BotAppCompactActivity implements ComposeFooterInterface,
                                         QuickReplyFragment.QuickReplyInterface,
-                                        TTSUpdate, InvokeGenericWebViewInterface/*, WidgetComposeFooterInterface*/, ThemeChangeListener/*, PanelInterface,
-                                        VerticalListViewActionHelper, UpdateRefreshItem*/
+                                        TTSUpdate, InvokeGenericWebViewInterface, ThemeChangeListener
 {
     String LOG_TAG = BotChatActivity.class.getSimpleName();
     FrameLayout chatLayoutFooterContainer;
@@ -129,16 +129,13 @@ public class BotChatActivity extends BotAppCompactActivity implements ComposeFoo
     BotContentFragmentUpdate botContentFragmentUpdate;
     ComposeFooterUpdate composeFooterUpdate;
     boolean isItFirstConnect = true;
-    private Gson gson = new Gson();
+    private final Gson gson = new Gson();
     //For Bottom Panel
-    private String packageName = "com.kore.koreapp";
-    private String appName = "Kore";
-//    private CustomBottomSheetBehavior mBottomSheetBehavior;
+    private final String packageName = "com.kore.koreapp";
+    private final String appName = "Kore";
     //Fragment Approch
     private FrameLayout composerView;
-//    private BottomPanelFragment composerFragment;
     private SharedPreferences sharedPreferences;
-    private String chatBgColor, chatTextColor;
     private ImageView ivChaseBackground, ivChaseLogo;
     protected int compressQualityInt = 100;
     protected Attachment attachment;
@@ -148,9 +145,9 @@ public class BotChatActivity extends BotAppCompactActivity implements ComposeFoo
     private ArrayList<BrandingNewModel> arrBrandingNewDos;
     private WebHookResponseDataModel webHookResponseDataModel;
     private BotMetaModel botMetaModel;
-    private Handler pollHandler = new Handler();
+    private final Handler pollHandler = new Handler();
     private Runnable runnable;
-    private int poll_delay = 2000;
+    private final int poll_delay = 2000;
     private String lastMsgId = "";
 
     @Override
@@ -194,7 +191,6 @@ public class BotChatActivity extends BotAppCompactActivity implements ComposeFoo
         ttsSynthesizer = new TTSSynthesizer(this);
         setupTextToSpeech();
         KoreEventCenter.register(this);
-//        attachFragments();
 
         if(!SDKConfiguration.Client.isWebHook)
         {
@@ -232,13 +228,6 @@ public class BotChatActivity extends BotAppCompactActivity implements ComposeFoo
         }
     };
 
-    public void buttonClick(View view){
-        int red= new Random().nextInt(255);
-        int green= new Random().nextInt(255);
-        int blue= new Random().nextInt(255);
-        ThemeColors.setNewThemeColor(BotChatActivity.this, red, green, blue);
-    }
-
     @Override
     protected void onDestroy() {
         botClient.disconnect();
@@ -266,6 +255,14 @@ public class BotChatActivity extends BotAppCompactActivity implements ComposeFoo
         RestBuilder.setContext(BotChatActivity.this);
         WebHookRestBuilder.setContext(BotChatActivity.this);
         BrandingRestBuilder.setContext(BotChatActivity.this);
+
+//        if (Build.VERSION.SDK_INT >= 30){
+//            if (!Environment.isExternalStorageManager()){
+//                Intent getpermission = new Intent();
+//                getpermission.setAction(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
+//                startActivity(getpermission);
+//            }
+//        }
     }
 
     private void updateTitleBar() {
@@ -444,9 +441,6 @@ public class BotChatActivity extends BotAppCompactActivity implements ComposeFoo
         super.onPause();
     }
 
-
-
-
     @Override
     public void onSendClick(String message,boolean isFromUtterance) {
         if(!StringUtils.isNullOrEmpty(message))
@@ -489,7 +483,7 @@ public class BotChatActivity extends BotAppCompactActivity implements ComposeFoo
             }
         }
 
-        toggleQuickRepliesVisiblity(false);
+        toggleQuickRepliesVisiblity();
     }
 
     @Override
@@ -567,7 +561,6 @@ public class BotChatActivity extends BotAppCompactActivity implements ComposeFoo
             }
 
             Log.d(LOG_TAG, payload);
-            boolean resolved = true;
             PayloadOuter payOuter = null;
 //            PayloadInner payInner = null;
             if (!botResponse.getMessage().isEmpty()) {
@@ -596,21 +589,19 @@ public class BotChatActivity extends BotAppCompactActivity implements ComposeFoo
             if (payloadInner != null) {
                 payloadInner.convertElementToAppropriate();
             }
-            if (resolved) {
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
 
-                        if(botResponse.getMessageId() != null)
-                            lastMsgId = botResponse.getMessageId();
+                    if(botResponse.getMessageId() != null)
+                        lastMsgId = botResponse.getMessageId();
 
-                        botContentFragment.addMessageToBotChatAdapter(botResponse);
-                        textToSpeech(botResponse);
-                        botContentFragment.setQuickRepliesIntoFooter(botResponse);
-                        botContentFragment.showCalendarIntoFooter(botResponse);
-                    }
-                }, BundleConstants.TYPING_STATUS_TIME);
-            }
+                    botContentFragment.addMessageToBotChatAdapter(botResponse);
+                    textToSpeech(botResponse);
+                    botContentFragment.setQuickRepliesIntoFooter(botResponse);
+                    botContentFragment.showCalendarIntoFooter(botResponse);
+                }
+            }, BundleConstants.TYPING_STATUS_TIME);
         } catch (Exception e) {
             /*Toast.makeText(getApplicationContext(), "Invalid JSON", Toast.LENGTH_SHORT).show();*/
             e.printStackTrace();
@@ -891,12 +882,8 @@ public class BotChatActivity extends BotAppCompactActivity implements ComposeFoo
         }
 
 
-    private void toggleQuickRepliesVisiblity(boolean visible){
-        if (visible) {
-            quickReplyFragment.toggleQuickReplyContainer(View.VISIBLE);
-        } else {
-            quickReplyFragment.toggleQuickReplyContainer(View.GONE);
-        }
+    private void toggleQuickRepliesVisiblity(){
+        quickReplyFragment.toggleQuickReplyContainer(View.GONE);
     }
 
 
@@ -911,61 +898,8 @@ public class BotChatActivity extends BotAppCompactActivity implements ComposeFoo
     protected boolean isOnline() {
         ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
-        if (netInfo != null && netInfo.isConnected()) {
-            return true;
-        } else {
-            return false;
-        }
+        return netInfo != null && netInfo.isConnected();
     }
-
-//    private void attachFragments() {
-//
-//        if(SDKConfiguration.Client.enablePanel)
-//        {
-//            composerView = findViewById(R.id.chatLayoutPanelContainer);
-//            composerView.setVisibility(VISIBLE);
-//            composerFragment = new BottomPanelFragment();
-//            composerFragment.setArguments(getIntent().getExtras());
-//            getSupportFragmentManager().beginTransaction()
-//                    .replace(R.id.chatLayoutPanelContainer, composerFragment).commit();
-//            composerFragment.setPanelComposeFooterInterface(BotChatActivity.this, SDKConfiguration.Client.identity);
-//        }
-//    }
-//
-//    private PanelBaseModel getHomeModelData(PanelResponseData panelResponseData, String panelName) {
-//        PanelBaseModel model = null;
-//        if (panelResponseData != null && panelResponseData.getPanels() != null && panelResponseData.getPanels().size() > 0) {
-//            for (PanelResponseData.Panel panel : panelResponseData.getPanels()) {
-//                if (panel != null && panel.getName() != null && panel.getName().equalsIgnoreCase(panelName)) {
-//                    model = new PanelBaseModel();
-//                    panel.setItemClicked(true);
-//                    model.setData(panel);
-//                    return model;
-//                }
-//            }
-//
-//        }
-//
-//        return model;
-//    }
-//
-//    @Override
-//    public void onPanelSendClick(String message, boolean isFromUtterance)
-//    {
-//        BotSocketConnectionManager.getInstance().sendMessage(message, null);
-//    }
-//
-//    @Override
-//    public void onPanelSendClick(String message, String payload, boolean isFromUtterance)
-//    {
-//        if(payload != null){
-//            BotSocketConnectionManager.getInstance().sendPayload(message, payload);
-//        }else{
-//            BotSocketConnectionManager.getInstance().sendMessage(message, payload);
-//        }
-//
-//        toggleQuickRepliesVisiblity(false);
-//    }
 
     @Override
     public void onThemeChangeClicked(String message)
@@ -982,6 +916,107 @@ public class BotChatActivity extends BotAppCompactActivity implements ComposeFoo
         }
     }
 
+    public void sendImage(String fP, String fN, String fPT) {
+    /*    String filePath = data.getStringExtra("filePath");
+        String fileName = data.getStringExtra("fileName");
+        String filePathThumbnail = data.getStringExtra(THUMBNAIL_FILE_PATH);*/
+        String filePath = fP;
+        String fileName = fN;
+        String filePathThumbnail = fPT;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+
+            new SaveCapturedImageTask(filePath, fileName, filePathThumbnail).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        } else {
+            new SaveCapturedImageTask(filePath, fileName, filePathThumbnail).execute();
+        }
+    }
+
+    protected class SaveCapturedImageTask extends AsyncTask<String, String, String> {
+
+        private final String filePath;
+        private final String fileName;
+        private final String filePathThumbnail;
+        private String orientation;
+
+        public SaveCapturedImageTask(String filePath, String fileName, String filePathThumbnail) {
+            this.filePath = filePath;
+            this.fileName = fileName;
+            this.filePathThumbnail = filePathThumbnail;
+        }
+
+
+        @Override
+        protected String doInBackground(String... params) {
+            android.os.Process.setThreadPriority(Process.THREAD_PRIORITY_MORE_FAVORABLE);
+            String extn = null;
+            OutputStream fOut = null;
+
+            if (filePath != null) {
+                extn = filePath.substring(filePath.lastIndexOf(".") + 1);
+                Bitmap thePic = BitmapUtils.decodeBitmapFromFile(filePath, 800, 600, false);
+//                    compressImage(filePath);
+                if (thePic != null) {
+                    try {
+                        // compress the image
+                        File _file = new File(filePath);
+
+                        Log.d(LOG_TAG, " file.exists() ---------------------------------------- " + _file.exists());
+                        fOut = new FileOutputStream(_file);
+
+                        thePic.compress(Bitmap.CompressFormat.JPEG, compressQualityInt, fOut);
+                        thePic = rotateIfNecessary(filePath, thePic);
+                        orientation = thePic.getWidth() > thePic.getHeight() ? BitmapUtils.ORIENTATION_LS : BitmapUtils.ORIENTATION_PT;
+                        fOut.flush();
+                        fOut.close();
+                    } catch (Exception e) {
+                        Log.e(LOG_TAG, e.toString());
+                    }
+                    finally {
+                        try {
+                            assert fOut != null;
+                            fOut.close();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+            return extn;
+        }
+
+
+        @Override
+        protected void onPostExecute(String extn) {
+            if (extn != null) {
+                //Common place for addition to composeBar
+                long fileLimit = getFileMaxSize();
+
+                if(!SDKConfiguration.Client.isWebHook)
+                {
+                    KoreWorker.getInstance().addTask(new UploadBulkFile(fileName,
+                            filePath, "bearer " + SocketWrapper.getInstance(BotChatActivity.this).getAccessToken(),
+                            SocketWrapper.getInstance(BotChatActivity.this).getBotUserId(), "workflows", extn,
+                            KoreMedia.BUFFER_SIZE_IMAGE,
+                            new Messenger(messagesMediaUploadAcknowledgeHandler),
+                            filePathThumbnail, "AT_" + System.currentTimeMillis(),
+                            BotChatActivity.this, BitmapUtils.obtainMediaTypeOfExtn(extn), (!SDKConfiguration.Client.isWebHook ? SDKConfiguration.Server.SERVER_URL : SDKConfiguration.Server.koreAPIUrl), orientation, true, SDKConfiguration.Client.isWebHook, SDKConfiguration.Client.bot_id));
+                }
+                else
+                {
+                    KoreWorker.getInstance().addTask(new UploadBulkFile(fileName,
+                            filePath, "bearer " + jwt,
+                            SocketWrapper.getInstance(BotChatActivity.this).getBotUserId(), "workflows", extn,
+                            KoreMedia.BUFFER_SIZE_IMAGE,
+                            new Messenger(messagesMediaUploadAcknowledgeHandler),
+                            filePathThumbnail, "AT_" + System.currentTimeMillis(),
+                            BotChatActivity.this, BitmapUtils.obtainMediaTypeOfExtn(extn), (!SDKConfiguration.Client.isWebHook ? SDKConfiguration.Server.SERVER_URL : SDKConfiguration.Server.koreAPIUrl), orientation, true, SDKConfiguration.Client.isWebHook, SDKConfiguration.Client.webHook_bot_id));
+                }
+            } else {
+                showToast("Unable to attach!");
+            }
+        }
+    }
+
     private long getFileMaxSize() {
         long FILE_MAX_SIZE = getFileLimit();
         if (FILE_MAX_SIZE != -1) {
@@ -990,6 +1025,97 @@ public class BotChatActivity extends BotAppCompactActivity implements ComposeFoo
 
         return FILE_MAX_SIZE;
     }
+
+    Handler messagesMediaUploadAcknowledgeHandler = new Handler() {
+        @Override
+        public synchronized void handleMessage(Message msg) {
+            Bundle reply = msg.getData();
+            Log.d("shri", reply + "------------------------------");
+          /*  if (reply.getBoolean(UploadBulkFile.isFileSizeMore_key, false)) {
+                showFreemiumDialog();
+                return;
+            }
+*/
+            if (reply.getBoolean("success", true)) {
+               /* long fileSizeBytes = reply.getLong(UploadBulkFile.fileSizeBytes_key);
+                totalFileSize= totalFileSize+fileSizeBytes;*/
+//                String messageId = reply.getString(Constants.MESSAGE_ID);
+                String mediaFilePath = reply.getString("filePath");
+                String MEDIA_TYPE = reply.getString("fileExtn");
+                String mediaFileId = reply.getString("fileId");
+                String mediaFileName = reply.getString("fileName");
+                String componentType = reply.getString("componentType");
+                String thumbnailURL = reply.getString("thumbnailURL");
+                String orientation = reply.getString(BundleConstants.ORIENTATION);
+                String COMPONENT_DESCRIPTION = reply.getString("componentDescription") != null ? reply.getString("componentDescription") : null;
+                HashMap<String, Object> COMPONENT_DATA = reply.getSerializable("componentData") != null ? ((HashMap<String, Object>) reply.getSerializable("componentData")) : null;
+                String fileSize = reply.getString("fileSize");
+                KoreComponentModel koreMedia = new KoreComponentModel();
+                koreMedia.setMediaType(BitmapUtils.getAttachmentType(componentType));
+                HashMap<String, Object> cmpData = new HashMap<>(1);
+                cmpData.put("fileName", mediaFileName);
+
+                koreMedia.setComponentData(cmpData);
+                koreMedia.setMediaFileName(getComponentId(componentType));
+                koreMedia.setMediaFilePath(mediaFilePath);
+                koreMedia.setFileSize(fileSize);
+
+                koreMedia.setMediafileId(mediaFileId);
+                koreMedia.setMediaThumbnail(thumbnailURL);
+
+
+//                hideBottomSheet();
+                composeFooterFragment.setSectionSelected(/*KoraMainComposeFragment.SECTION_TYPE.SECTION_COMPOSE_WITH_COMPOSE_BAR*/);
+                messageHandler.postDelayed(new Runnable() {
+                    public void run() {
+                        HashMap<String, String> attachmentKey = new HashMap<>();
+                        attachmentKey.put("fileName", mediaFileName + "." + MEDIA_TYPE);
+                        attachmentKey.put("fileType", componentType);
+                        attachmentKey.put("fileId", mediaFileId);
+                        attachmentKey.put("localFilePath", mediaFilePath);
+                        attachmentKey.put("fileExtn", MEDIA_TYPE);
+                        attachmentKey.put("thumbnailURL", thumbnailURL);
+                        composeFooterFragment.addAttachmentToAdapter(attachmentKey);
+                       /* KoraSocketConnectionManager.getInstance().sendMessageWithCustomDataAttchment(mediaFileName+"."+MEDIA_TYPE, attachmentKey, false);
+                        KoraSocketConnectionManager.getInstance().stopDelayMsgTimer();
+                        toggleVisibilities(false, true);*/
+                    }
+                }, 400);
+
+
+                // kaComponentModels.add(koreMedia);
+                // insertTags(koreMedia, componentType, orientation, mediaFileName);
+
+            } else {
+                String errorMsg = reply.getString(UploadBulkFile.error_msz_key);
+                if (!TextUtils.isEmpty(errorMsg)) {
+                    Log.i("File upload error", errorMsg);
+                    showToast(errorMsg);
+                }
+            }
+        }
+    };
+
+    public void mediaAttachment(HashMap<String, String> attachmentKey)
+    {
+//        hideBottomSheet();
+        composeFooterFragment.setSectionSelected(/*KoraMainComposeFragment.SECTION_TYPE.SECTION_COMPOSE_WITH_COMPOSE_BAR*/);
+        messageHandler.postDelayed(new Runnable() {
+            public void run() {
+
+                composeFooterFragment.addAttachmentToAdapter(attachmentKey);
+                       /* KoraSocketConnectionManager.getInstance().sendMessageWithCustomDataAttchment(mediaFileName+"."+MEDIA_TYPE, attachmentKey, false);
+                        KoraSocketConnectionManager.getInstance().stopDelayMsgTimer();
+                        toggleVisibilities(false, true);*/
+            }
+        }, 400);
+    }
+
+//    public void hideBottomSheet() {
+//        if (mBottomSheetBehavior != null && mBottomSheetBehavior.getState() != BottomSheetBehavior.STATE_HIDDEN) {
+//            mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+//        }
+//    }
 
     private int getFileLimit() {
         attachment = SharedPreferenceUtils.getInstance(this).getAttachmentPref("");

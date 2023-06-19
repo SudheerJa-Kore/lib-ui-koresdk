@@ -13,6 +13,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.DrawableImageViewTarget;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -50,7 +51,7 @@ public class ComposebarAttachmentAdapter extends RecyclerView.Adapter<Composebar
         String fileExtn=dataList.get(position).get("fileExtn");
         if(FileUtils.ImageTypes().contains(fileExtn)|| FileUtils.VideoTypes().contains(fileExtn))
         {
-            Glide.with(context).load(dataList.get(position).get("localFilePath")).apply(new RequestOptions().diskCacheStrategy(DiskCacheStrategy.NONE)).into(new DrawableImageViewTarget(holder.attach_view));
+            Glide.with(context).load(dataList.get(holder.getBindingAdapterPosition()).get("localFilePath")).apply(new RequestOptions().diskCacheStrategy(DiskCacheStrategy.NONE)).into(new DrawableImageViewTarget(holder.attach_view));
 
            }else {
             holder.attach_view.setImageResource(FileUtils.getDrawableByExt(!StringUtils.isNullOrEmptyWithTrim(fileExtn) ? fileExtn.toLowerCase() : ""));
@@ -59,7 +60,7 @@ public class ComposebarAttachmentAdapter extends RecyclerView.Adapter<Composebar
         holder.close_icon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                dataList.remove(position);
+                dataList.remove(holder.getBindingAdapterPosition());
                 notifyDataSetChanged();
                 attachmentListner.onRemoveAttachment();
             }
