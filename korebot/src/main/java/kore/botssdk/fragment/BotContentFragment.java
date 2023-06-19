@@ -127,6 +127,7 @@ public class BotContentFragment extends Fragment implements BotContentFragmentUp
     private View popUpView;
     private TextView tvChaseTitle;
     private String jwt;
+    private String dateformat = "M-DD-YYYY";
 
     @Nullable
     @Override
@@ -709,7 +710,7 @@ public class BotContentFragment extends Fragment implements BotContentFragmentUp
 
     private Date stringToDate(String aDate,String aFormat) {
 
-        SimpleDateFormat format = new SimpleDateFormat("M-DD-YYYY");
+        SimpleDateFormat format = new SimpleDateFormat(dateformat);
         try
         {
             Date date = format.parse(aDate);
