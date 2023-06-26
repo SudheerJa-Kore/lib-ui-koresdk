@@ -255,14 +255,10 @@ public class BotChatActivity extends BotAppCompactActivity implements ComposeFoo
         RestBuilder.setContext(BotChatActivity.this);
         WebHookRestBuilder.setContext(BotChatActivity.this);
         BrandingRestBuilder.setContext(BotChatActivity.this);
-
-//        if (Build.VERSION.SDK_INT >= 30){
-//            if (!Environment.isExternalStorageManager()){
-//                Intent getpermission = new Intent();
-//                getpermission.setAction(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
-//                startActivity(getpermission);
-//            }
-//        }
+        SDKConfiguration.Client.bot_id = "st-b9889c46-218c-58f7-838f-73ae9203488c";
+        SDKConfiguration.Client.client_id = "cs-1e845b00-81ad-5757-a1e7-d0f6fea227e9";
+        SDKConfiguration.Client.client_secret = "5OcBSQtH/k6Q/S6A3bseYfOee02YjjLLTNoT1qZDBso=";
+        SDKConfiguration.Client.bot_name = "SDK Demo";
     }
 
     private void updateTitleBar() {
@@ -360,6 +356,9 @@ public class BotChatActivity extends BotAppCompactActivity implements ComposeFoo
 
         if(botContentFragment != null)
             botContentFragment.changeThemeBackGround(brandingModel.getWidgetBgColor(), brandingModel.getWidgetTextColor());
+
+
+
     }
 
 
@@ -1139,6 +1138,55 @@ public class BotChatActivity extends BotAppCompactActivity implements ComposeFoo
     }
 
     private void getBrandingDetails() {
+        Call<ArrayList<BrandingNewModel>> getBankingConfigService = BrandingRestBuilder.getRestAPI().getBrandingNewDetails("bearer " + SocketWrapper.getInstance(BotChatActivity.this).getAccessToken(), SDKConfiguration.Client.tenant_id, "published", "1","en_US", SDKConfiguration.Client.bot_id);
+        getBankingConfigService.enqueue(new Callback<ArrayList<BrandingNewModel>>() {
+            @Override
+            public void onResponse(Call<ArrayList<BrandingNewModel>> call, Response<ArrayList<BrandingNewModel>> response) {
+                if (response.isSuccessful())
+                {
+                    arrBrandingNewDos = response.body();
+
+                    if(arrBrandingNewDos != null && arrBrandingNewDos.size() > 0)
+                    {
+                        BotOptionsModel botOptionsModel = arrBrandingNewDos.get(0).getHamburgermenu();
+
+                        if(composeFooterFragment != null)
+                            composeFooterFragment.setBottomOptionData(botOptionsModel);
+
+                        if(arrBrandingNewDos.size() > 1)
+                            onEvent(arrBrandingNewDos.get(1).getBrandingwidgetdesktop());
+
+                        if(isItFirstConnect)
+                        {
+                            botClient.sendMessage("BotNotifications");
+                            isItFirstConnect = false;
+                        }
+                    }
+                }
+                else
+                {
+                    if(isItFirstConnect)
+                    {
+                        botClient.sendMessage("BotNotifications");
+                        isItFirstConnect = false;
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ArrayList<BrandingNewModel>> call, Throwable t)
+            {
+                Log.e("getBrandingDetails", t.toString());
+
+                if(isItFirstConnect)
+                {
+                    botClient.sendMessage("BotNotifications");
+                    isItFirstConnect = false;
+                }
+            }
+        });
+    }
+    private void subscribeForPushNotifications() {
         Call<ArrayList<BrandingNewModel>> getBankingConfigService = BrandingRestBuilder.getRestAPI().getBrandingNewDetails("bearer " + SocketWrapper.getInstance(BotChatActivity.this).getAccessToken(), SDKConfiguration.Client.tenant_id, "published", "1","en_US", SDKConfiguration.Client.bot_id);
         getBankingConfigService.enqueue(new Callback<ArrayList<BrandingNewModel>>() {
             @Override
