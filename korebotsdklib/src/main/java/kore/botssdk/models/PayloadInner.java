@@ -71,6 +71,14 @@ public class PayloadInner {
     private ArrayList<FeedbackExperienceContentModel> experienceContent;
     private ArrayList<FeedbackListModel> feedbackList;
     private String text_message;
+    private String fileName;
+
+    public String getFileName() {
+        return fileName;
+    }
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
 
     public String getText_message() {
         return text_message;
@@ -130,7 +138,7 @@ public class PayloadInner {
     public void setFocus(String focus) {
         this.focus = focus;
     }
-    private static Gson gson = new Gson();
+    private static final Gson gson = new Gson();
     public boolean shouldHideComposeBar() {
         return hideComposeBar;
     }
@@ -338,18 +346,6 @@ public class PayloadInner {
 
     private String placeholder_text;
 
-    public AutoSuggestions getAutoSuggestions() {
-        return auto_suggestions;
-    }
-
-    public void setAutoSuggestions(AutoSuggestions auto_suggestions) {
-        this.auto_suggestions = auto_suggestions;
-    }
-
-//    private String hashtag_search_url;
-
-    private AutoSuggestions auto_suggestions;
-
     private List<List<String>> columns = null;
     private ArrayList<BotTableDataModel> tableDataModel = null;
 
@@ -366,7 +362,15 @@ public class PayloadInner {
     private ArrayList<FeedbackStarModel> starArrays;
     private ArrayList<ContactTemplateModel> cards;
     private boolean dialogCancel;
+    private int listItemDisplayCount;
 
+    public int getListItemDisplayCount() {
+        return listItemDisplayCount;
+    }
+
+    public void setListItemDisplayCount(int listItemDisplayCount) {
+        this.listItemDisplayCount = listItemDisplayCount;
+    }
 
     public ArrayList<BotMultiSelectElementModel> getMultiSelectModels() {
         return multiSelectModels;
@@ -599,7 +603,7 @@ public class PayloadInner {
     private Duration cursor = null;
     //    private Object columns = null;
     private String elementsAsString;
-    private String color = "#000000";
+    private final String color = "#000000";
 
     //    private final String INVALID_JSON = "Invalid JSON";
     private String speech_hint;

@@ -12,13 +12,16 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.GradientDrawable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 
 import kore.botssdk.application.AppControl;
 import kore.botssdk.listener.ComposeFooterInterface;
@@ -143,14 +146,17 @@ public abstract class KaBaseBubbleLayout extends ViewGroup {
     protected BotContactTemplateView botContactTemplateView;
     protected BotCustomTableView botCustomTableView;
 
+    protected CustomTemplateView customTemplateView;
+
     //    protected int[] dimens;
     protected int textColor;
     protected int textMediaLayoutGravity = BubbleConstants.GRAVITY_LEFT;
     protected GradientDrawable leftGradientDrawable,rightGradientDrawable;
-
     LayoutInflater ownLayoutInflater;
     protected TextView timeStampsTextView;
     protected TimeLineTextView timeLineView;
+
+    protected EmptyTemplateView emptyTemplateView;
 
     public KaBaseBubbleLayout(Context context) {
         super(context);
@@ -188,7 +194,6 @@ public abstract class KaBaseBubbleLayout extends ViewGroup {
         }
         viewAddition();
     }
-
 
     public void setTimeStampVisible(){
         timeStampsTextView.setVisibility(VISIBLE);
@@ -428,9 +433,13 @@ public abstract class KaBaseBubbleLayout extends ViewGroup {
         bankingFeedbackTemplateView = ViewProvider.getBankingFeedbackTemplateView(context);
         bankingFeedbackTemplateView.setComposeFooterInterface(composeFooterInterface);
         addView(bankingFeedbackTemplateView);
+
+        emptyTemplateView = ViewProvider.getEmptyTemplateView(context);
+        addView(emptyTemplateView);
+
+//        customTemplateView = ViewProvider.getCustomTemplateView(context);
+//        addView(customTemplateView);
     }
-
-
 
     abstract void initializeBubbleBorderPass1();
 

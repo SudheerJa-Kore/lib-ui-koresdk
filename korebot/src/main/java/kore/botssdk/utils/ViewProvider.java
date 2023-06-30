@@ -7,6 +7,7 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
 import android.util.TypedValue;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -16,7 +17,9 @@ import java.util.ArrayList;
 import kore.botssdk.listener.ComposeFooterInterface;
 import kore.botssdk.listener.InvokeGenericWebViewInterface;
 import kore.botssdk.models.FormActionTemplate;
+import kore.botssdk.models.PayloadInner;
 import kore.botssdk.models.QuickReplyTemplate;
+import kore.botssdk.net.SDKConfiguration;
 import kore.botssdk.view.AgentTransferTemplateView;
 import kore.botssdk.view.AttendeeSlotSelectionView;
 import kore.botssdk.view.BankingFeedbackTemplateView;
@@ -36,6 +39,8 @@ import kore.botssdk.view.BotResponsiveTableView;
 import kore.botssdk.view.BotTableListTemplateView;
 import kore.botssdk.view.BotTableView;
 import kore.botssdk.view.ContactInfoView;
+import kore.botssdk.view.CustomTemplateView;
+import kore.botssdk.view.EmptyTemplateView;
 import kore.botssdk.view.FeedbackTemplateView;
 import kore.botssdk.view.FormActionView;
 import kore.botssdk.view.HorizontalBarChartView;
@@ -55,6 +60,7 @@ import kore.botssdk.view.TimeLineTextView;
 import kore.botssdk.view.UniversalSearchView;
 import kore.botssdk.view.VerticalListView;
 import kore.botssdk.view.WelcomeSummaryView;
+import kore.botssdk.view.viewUtils.MeasureUtils;
 
 /**
  * Created by Shiva Krishna on 11/20/2017.
@@ -410,4 +416,9 @@ public class ViewProvider {
         return agentTransferTemplateView;
     }
 
+    public static EmptyTemplateView getEmptyTemplateView(Context context) {
+        EmptyTemplateView emptyTemplateView = new EmptyTemplateView(context);
+        emptyTemplateView.setId(LIST_ID);
+        return emptyTemplateView;
+    }
 }

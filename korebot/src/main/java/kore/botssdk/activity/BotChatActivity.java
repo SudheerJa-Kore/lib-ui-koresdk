@@ -149,6 +149,39 @@ public class BotChatActivity extends BotAppCompactActivity implements ComposeFoo
     private Runnable runnable;
     private final int poll_delay = 2000;
     private String lastMsgId = "";
+    private String strResp = "{\n" +
+            "   \"type\":\"bot_response\",\n" +
+            "   \"from\":\"bot\",\n" +
+            "   \"message\":[\n" +
+            "      {\n" +
+            "         \"type\":\"text\",\n" +
+            "         \"component\":{\n" +
+            "            \"type\":\"template\",\n" +
+            "            \"payload\":{\n" +
+            "               \"type\":\"link\",\n" +
+            "               \"payload\":{\n" +
+            "                  \"download\":true,\n" +
+            "                  \"fileName\":\"sample.pdf\",\n" +
+            "                  \"url\":\"\"\n" +
+            "               }\n" +
+            "            }\n" +
+            "         },\n" +
+            "         \"cInfo\":{\n" +
+            "            \"body\":\"{\\\"type\\\":\\\"link\\\",\\\"payload\\\":{\\\"download\\\":true,\\\"fileName\\\":\\\"sample.pdf\\\",\\\"url\\\":\\\"\\\"}}\"\n" +
+            "         }\n" +
+            "      }\n" +
+            "   ],\n" +
+            "   \"messageId\":\"ms-d788923c-8376-5042-8c29-ad5feffe7d56\",\n" +
+            "   \"botInfo\":{\n" +
+            "      \"channelClient\":\"Android\",\n" +
+            "      \"chatBot\":\"SDKBot\",\n" +
+            "      \"taskBotId\":\"st-b9889c46-218c-58f7-838f-73ae9203488c\"\n" +
+            "   },\n" +
+            "   \"createdOn\":\"2023-06-29T10:11:11.740Z\",\n" +
+            "   \"xTraceId\":111323490,\n" +
+            "   \"icon\":\"https://dlnwzkim0wron.cloudfront.net/f-5e050d52-6c4a-5442-b7e6-2ddbc93e4df7.png\",\n" +
+            "   \"traceId\":\"780da63c10cc2b16\"\n" +
+            "}";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
