@@ -1,6 +1,8 @@
 package kore.botssdk.net;
 
 
+import com.google.gson.JsonObject;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -9,6 +11,7 @@ import kore.botssdk.models.BotMetaModel;
 import kore.botssdk.models.BrandingNewModel;
 import kore.botssdk.models.JWTTokenResponse;
 import kore.botssdk.models.KoreLoginResponse;
+import kore.botssdk.models.PdfResponseModel;
 import kore.botssdk.models.TokenResponseModel;
 import kore.botssdk.models.WebHookResponseDataModel;
 import kore.botssdk.models.WebHookResponseModel;
@@ -21,10 +24,12 @@ import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
+import retrofit2.http.HeaderMap;
 import retrofit2.http.Headers;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
+import retrofit2.http.Url;
 
 /**
  * Copyright (c) 2014 Kore Inc. All rights reserved.
@@ -105,4 +110,10 @@ public interface RestAPI {
 
     @GET("chatbot/v2/webhook/{streamId}/poll/{pollId}")
     Call<WebHookResponseDataModel> getPollIdData(@Header("Authorization") String token, @Path("streamId") String streamId, @Path("pollId") String pollId);
+
+    @POST
+    Call<PdfResponseModel> getPdfBaseDetails(@Url String url, @HeaderMap HashMap<String, String> header, @Body JsonObject body);
+
+    @POST
+    Call<ResponseBody> getPdfDetails(@Url String url, @HeaderMap HashMap<String, String> header, @Body JsonObject body);
 }

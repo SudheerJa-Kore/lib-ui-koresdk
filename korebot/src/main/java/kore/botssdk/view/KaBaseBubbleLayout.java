@@ -12,16 +12,13 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.GradientDrawable;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 
 import kore.botssdk.application.AppControl;
 import kore.botssdk.listener.ComposeFooterInterface;
@@ -43,6 +40,7 @@ import kore.botssdk.view.viewUtils.DimensionUtil;
  * Created by Pradeep Mahato on 31-May-16.
  * Copyright (c) 2014 Kore Inc. All rights reserved.
  */
+@SuppressLint("UnknownNullness")
 public abstract class KaBaseBubbleLayout extends ViewGroup {
     Context context;
     Activity activityContext;
@@ -79,8 +77,8 @@ public abstract class KaBaseBubbleLayout extends ViewGroup {
     protected int BUBBLE_LEFT_BORDER = 0;
     protected int BUBBLE_RIGHT_BORDER = 0;
     protected int BUBBLE_FORWARD_LAYOUT_HEIGHT_CONSIDERATION_FOR_PAINT = 0;
-    protected int BUBBLE_CONTENT_LEFT_BORDER = 0; //TODO remove this...
-    protected int BUBBLE_CONTENT_RIGHT_BORDER = 0; //TODO remove this...
+    protected int BUBBLE_CONTENT_LEFT_BORDER = 0;
+    protected int BUBBLE_CONTENT_RIGHT_BORDER = 0;
     protected int BUBBLE_LEFT_PROFILE_PIC = 0;
     protected int BUBBLE_SEPARATION_DISTANCE = 0;
     protected int BUBBLE_GROUPING_TIMELINE = 0;
@@ -146,7 +144,15 @@ public abstract class KaBaseBubbleLayout extends ViewGroup {
     protected BotContactTemplateView botContactTemplateView;
     protected BotCustomTableView botCustomTableView;
 
-    protected CustomTemplateView customTemplateView;
+    protected LinkTemplateView linkTemplateView;
+    protected AdvancedListTemplateView advancedListTemplateView;
+    protected BotBeneficiaryTemplateView botBeneficiaryTemplateView;
+    protected ButtonDeepLinkTemplateView buttonDeepLinkTemplateView;
+    protected PdfDownloadView pdfDownloadView;
+    protected ResultsTemplateView resultsTemplateView;
+    protected BotButtonLinkTemplateView botButtonLinkTemplateView;
+    protected CardTemplateView cardTemplateView;
+    protected EmptyTemplateView emptyTemplateView;
 
     //    protected int[] dimens;
     protected int textColor;
@@ -156,7 +162,6 @@ public abstract class KaBaseBubbleLayout extends ViewGroup {
     protected TextView timeStampsTextView;
     protected TimeLineTextView timeLineView;
 
-    protected EmptyTemplateView emptyTemplateView;
 
     public KaBaseBubbleLayout(Context context) {
         super(context);
@@ -250,7 +255,7 @@ public abstract class KaBaseBubbleLayout extends ViewGroup {
             } else {
                 paint.setColor(LEFT_COLOR_UNSELECTED);
             }
-        } else if (!isLeftSide()) {
+        } else {
             if (isSelected()) {
                 paint.setColor(RIGHT_COLOR_SELECTED);
             } else {
@@ -434,11 +439,36 @@ public abstract class KaBaseBubbleLayout extends ViewGroup {
         bankingFeedbackTemplateView.setComposeFooterInterface(composeFooterInterface);
         addView(bankingFeedbackTemplateView);
 
+        linkTemplateView = ViewProvider.getLinkTemplateView(context);
+        addView(linkTemplateView);
+
+        advancedListTemplateView = ViewProvider.getAdvancedListTemplateView(context);
+        advancedListTemplateView.setComposeFooterInterface(composeFooterInterface);
+        addView(advancedListTemplateView);
+
+        resultsTemplateView = ViewProvider.getResultsTemplateView(context);
+        resultsTemplateView.setComposeFooterInterface(composeFooterInterface);
+        addView(resultsTemplateView);
+
+        pdfDownloadView = ViewProvider.getPdfListView(context);
+        addView(pdfDownloadView);
+
+        botButtonLinkTemplateView = ViewProvider.getBotButtonLinkView(context,null);
+        addView(botButtonLinkTemplateView);
+
+        botBeneficiaryTemplateView = ViewProvider.getBotBeneficiaryTemplateView(context);
+        addView(botBeneficiaryTemplateView);
+
+        buttonDeepLinkTemplateView = ViewProvider.getButtonDeepLinkTemplateView(context);
+        buttonDeepLinkTemplateView.setComposeFooterInterface(composeFooterInterface);
+        addView(buttonDeepLinkTemplateView);
+
+        cardTemplateView = ViewProvider.getCardTemplateView(context);
+        cardTemplateView.setComposeFooterInterface(composeFooterInterface);
+        addView(cardTemplateView);
+
         emptyTemplateView = ViewProvider.getEmptyTemplateView(context);
         addView(emptyTemplateView);
-
-//        customTemplateView = ViewProvider.getCustomTemplateView(context);
-//        addView(customTemplateView);
     }
 
     abstract void initializeBubbleBorderPass1();
@@ -563,6 +593,25 @@ public abstract class KaBaseBubbleLayout extends ViewGroup {
         if(bankingFeedbackTemplateView != null) {
             bankingFeedbackTemplateView.setComposeFooterInterface(composeFooterInterface);
         }
+
+        if(resultsTemplateView != null) {
+            resultsTemplateView.setComposeFooterInterface(composeFooterInterface);
+        }
+        if (botButtonLinkTemplateView != null) {
+            botButtonLinkTemplateView.setComposeFooterInterface(composeFooterInterface);
+        }
+        if (botBeneficiaryTemplateView != null) {
+            botBeneficiaryTemplateView.setComposeFooterInterface(composeFooterInterface);
+        }
+        if(buttonDeepLinkTemplateView != null){
+            buttonDeepLinkTemplateView.setComposeFooterInterface(composeFooterInterface);
+        }
+        if(advancedListTemplateView != null){
+            advancedListTemplateView.setComposeFooterInterface(composeFooterInterface);
+        }
+        if(cardTemplateView != null){
+            cardTemplateView.setComposeFooterInterface(composeFooterInterface);
+        }
     }
     public void setInvokeGenericWebViewInterface(InvokeGenericWebViewInterface invokeGenericWebViewInterface) {
         this.invokeGenericWebViewInterface = invokeGenericWebViewInterface;
@@ -627,6 +676,24 @@ public abstract class KaBaseBubbleLayout extends ViewGroup {
 
         if(bankingFeedbackTemplateView != null) {
             bankingFeedbackTemplateView.setInvokeGenericWebViewInterface(invokeGenericWebViewInterface);
+        }
+        if(resultsTemplateView != null) {
+            resultsTemplateView.setInvokeGenericWebViewInterface(invokeGenericWebViewInterface);
+        }
+        if (botButtonLinkTemplateView != null) {
+            botButtonLinkTemplateView.setInvokeGenericWebViewInterface(invokeGenericWebViewInterface);
+        }
+        if (botBeneficiaryTemplateView != null) {
+            botBeneficiaryTemplateView.setInvokeGenericWebViewInterface(invokeGenericWebViewInterface);
+        }
+        if (buttonDeepLinkTemplateView != null) {
+            buttonDeepLinkTemplateView.setInvokeGenericWebViewInterface(invokeGenericWebViewInterface);
+        }
+        if (advancedListTemplateView != null) {
+            advancedListTemplateView.setInvokeGenericWebViewInterface(invokeGenericWebViewInterface);
+        }
+        if (cardTemplateView != null) {
+            cardTemplateView.setInvokeGenericWebViewInterface(invokeGenericWebViewInterface);
         }
     }
 

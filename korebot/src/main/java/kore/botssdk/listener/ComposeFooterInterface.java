@@ -48,4 +48,6 @@ public interface ComposeFooterInterface {
     void knowledgeCollectionItemClick(KnowledgeCollectionModel.DataElements elements, String id);
 
     void externalReadWritePermission(String fileUrl);
+
+    void onDeepLinkClicked(String url);
 }

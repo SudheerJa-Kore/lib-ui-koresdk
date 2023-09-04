@@ -5,7 +5,17 @@ package kore.botssdk.utils;
  */
 public class BundleConstants {
     public static final String REQ_TEXT_TO_DISPLAY = "reqTextTodisplay";
-
+    public static final String DEFAULT = "default";
+    public static final String FULL_WIDTH = "fullwidth";
+    public static final String TABLE = "table";
+    public static final String RIGHT = "right";
+    public static final String LEFT = "left";
+    public static final String BOLD = "bold";
+    public static final String FAQ = "faq";
+    public static final String ICON = "icon";
+    public static final String BUTTON = "button";
+    public static final String DROP_DOWN = "dropdown";
+    public static final String OPTIONS = "options";
     public static final String KNOWLEDGE_ID = "knowledgeId";
     public static final String SHOW_SHARE ="show_share" ;
     public static String CAROUSEL_ITEM = "carousel_item";

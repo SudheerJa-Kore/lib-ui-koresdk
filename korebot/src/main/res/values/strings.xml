@@ -100,6 +100,12 @@
     <string name="about">About</string>
     <string name="add_suggestions">Add Suggestions</string>
     <string name="get_started">Get Started</string>
+    <string name="upi_id">UPI ID</string>
+    <string name="see_all_results">See all results</string>
+    <string name="read_more">Read more</string>
+    <string name="show_less">Show less</string>
+    <string name="more">More</string>
+    <string name="title">Title</string>
 
     <string-array name="attachments_strings">
         <item>Take Photo</item>

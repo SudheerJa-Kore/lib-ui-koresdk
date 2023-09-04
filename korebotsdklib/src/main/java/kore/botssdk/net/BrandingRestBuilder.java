@@ -83,6 +83,19 @@ public class BrandingRestBuilder {
         }
     }
 
+    public static RestAPI getPDfAPI(){
+//        if(restAPI == null) {
+        restAPI = new Retrofit.Builder()
+                .baseUrl("https://app.qa-opt.idfcfirstbank.com/")
+                .addConverterFactory(new RestBuilder.NullOnEmptyConverterFactory())
+                .addConverterFactory(createConverter())
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .client(getClient())
+                .build().create(RestAPI.class);
+//        }
+        return restAPI;
+    }
+
     private static GsonConverterFactory createConverter() {
         final GsonBuilder gsonBuilder = new GsonBuilder();
         gsonBuilder.registerTypeAdapter(boolean.class, new RestBuilder.BooleanDeserializer());
